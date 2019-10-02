@@ -15,13 +15,32 @@ var Lab4 = ( function() {
              * currency codes, separated by colons and formatted to two decimal
              * places.  (See the screenshot given with this assignment.)
              */
-
             // INSERT YOUR CODE HERE
-
+            var date = rates.date;
+            var indRates = rates.rates;
+            var base = rates.base;
+            var userInput = $("#input").val();
+            if(isNaN(userInput)){
+                alert("Error! Your input is not valid!")
+                return;
+            }
+            else if(userInput.length == 0){
+                alert("The required field cannot be empty");
+                return;
+            }
+            else{
+                var userNum = parseFloat(userInput);
+            }
+            Object.keys(indRates).forEach(function(key) {
+                //alert(key + " " +  indRates[key]);
+                var mult = parseFloat(indRates[key]);
+                $("#output").append(key + "&nbsp;" + (userNum * mult).toFixed(2) +  "</br>");
+            });
+            $("#output").append("</br>");
+            $("#output").append("Based on&nbsp;" + date +"&nbsp;exchange rates");
         },
         
         getConversion: function() {
-            
             /*
              * This method should send an Ajax request to our API to get the
              * latest exchange rates.  Use "latest" as the URL and "json" as the
@@ -33,7 +52,6 @@ var Lab4 = ( function() {
              * the "that" variable shown here, see Page 6 of the "Functions and
              * Objects" lecture notes.
              */
-            
             var that = this;
             
             $.ajax({
@@ -44,15 +62,11 @@ var Lab4 = ( function() {
                     that.convert(response);                    
                 }
             });
-            
         },
         
         init: function() {
-            
-            /* Output the current version of jQuery (for diagnostic purposes) */
-            
+            /* Output the current version of jQuery (for diagnostic purposes) */            
             $('#output').html( "jQuery Version: " + $().jquery );
- 
         }
 
     };
