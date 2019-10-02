@@ -4,11 +4,12 @@ import com.opencsv.CSVReader;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-
 public class Rates {
     
     public static final String RATE_FILENAME = "rates.csv";
@@ -113,21 +114,32 @@ public class Rates {
              * values to "json" container.  See the "getRatesAsTable()" method
              * for an example of how to get the CSV data from the list, and
              * don't forget to skip the header row!
-             *
-             * *** INSERT YOUR CODE HERE ***
              */
-            
+            String[] record;
+            int count = 0;
+            while(iterator.hasNext()){
+                
+                if(count == 0){
+                    //Skip the first row because it contains headings we don't need for our json data
+                    record = iterator.next();
+                    record = iterator.next();
+                    rates.put(record[1],record[2]);
+                    count += 1;
+                }
+                else{
+                    record = iterator.next();
+                    rates.put(record[1],record[2]);
+                }
+            }
             json.put("rates", rates);
-            
-            /* Parse top-level container to a JSON string */
-            
+            json.put("base", "USD");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            json.put("date", simpleDateFormat.format(new Date()));
             results = JSONValue.toJSONString(json);
-            
         }
         catch (Exception e) { System.err.println( e.toString() ); }
         
-        /* Return JSON string */
-        
+        System.err.println(results);
         return (results.trim());
         
     }
