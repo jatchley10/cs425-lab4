@@ -33,10 +33,8 @@ public class Latest extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/json;charset=UTF-8");
-        String path = getServletContext().getRealPath(File.separator + Rates.RATE_FILENAME);
         try (PrintWriter out = response.getWriter()) {
-            
-            out.println( Rates.getRatesAsJson( Rates.getRates(path) ) );
+            out.println(Rates.getRatesAsJson( request.getParameter("code")) );
         }
     }
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

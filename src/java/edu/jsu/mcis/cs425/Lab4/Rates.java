@@ -4,12 +4,21 @@ import com.opencsv.CSVReader;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.sql.DataSource;
+import javax.naming.*;
 public class Rates {
     
     public static final String RATE_FILENAME = "rates.csv";
@@ -143,5 +152,47 @@ public class Rates {
         return (results.trim());
         
     }
-
+    public static String getRatesAsJson(String code){
+        
+        try{
+            String results = null;
+            Context envContext = new InitialContext();
+            Context initContext = (Context) envContext.lookup("java:/comp/env");
+            DataSource ds = (DataSource) initContext.lookup("jdbc/db_pool");
+            Connection conn = ds.getConnection();
+            String query;
+            PreparedStatement pstatement;
+            String base;
+            String date;
+            JSONObject json = new JSONObject();
+            JSONObject rates = new JSONObject();
+            ResultSet rs;
+            if(code == null){
+                query = "SELECT code,rate,date FROM rates r";
+                pstatement = conn.prepareStatement(query);
+                rs = pstatement.executeQuery();
+            }
+            else{
+                query = "SELECT code, rate, date FROM rates r where code like ?";
+                pstatement = conn.prepareStatement(query);
+                pstatement.setString(1, code);
+                rs = pstatement.executeQuery();
+            }
+            
+            while(rs.next()){
+                rates.put(rs.getString("code"), rs.getString("rate"));
+            }
+            json.put("rates",rates);
+            json.put("date","2019-09-30");
+            json.put("base", "USD");
+            results = JSONValue.toJSONString(json);
+            
+            return results;
+        } catch (NamingException ex) {
+            Logger.getLogger(Rates.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Rates.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "Error";
+    }
 }
